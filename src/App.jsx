@@ -134,28 +134,42 @@ export default function App() {
         const t = playlist.tracks[i]
         setStatus(`Matching tracks... (${i + 1}/${playlist.tracks.length})`)
 
-        if (t.previewUrl) {
-          tracks.push({
-            id: `scraped-${i}`,
-            name: t.name,
-            artists: [{ name: t.artist }],
-            album: { name: '', images: [] },
-            previewUrl: t.previewUrl,
-          })
-        } else {
-          try {
-            const result = await searchTrack(t.searchQuery)
-            if (result) {
-              tracks.push(result)
-            } else {
-              unmatched.push(t.searchQuery)
-            }
-          } catch {
+        // Always search Deezer for artwork and metadata
+        try {
+          const result = await searchTrack(t.searchQuery)
+          if (result) {
+            // Prefer the scraped preview URL (e.g. from Spotify) if available
+            if (t.previewUrl) result.previewUrl = t.previewUrl
+            tracks.push(result)
+          } else if (t.previewUrl) {
+            // Deezer didn't find it, but we have a preview from scraping
+            tracks.push({
+              id: `scraped-${i}`,
+              name: t.name,
+              artists: [{ name: t.artist }],
+              album: { name: '', images: [] },
+              previewUrl: t.previewUrl,
+            })
+          } else {
             unmatched.push(t.searchQuery)
           }
-          if (i < playlist.tracks.length - 1) {
-            await new Promise((r) => setTimeout(r, 150))
+        } catch {
+          if (t.previewUrl) {
+            tracks.push({
+              id: `scraped-${i}`,
+              name: t.name,
+              artists: [{ name: t.artist }],
+              album: { name: '', images: [] },
+              previewUrl: t.previewUrl,
+            })
+          } else {
+            unmatched.push(t.searchQuery)
           }
+        }
+
+        // Rate limit delay for Deezer
+        if (i < playlist.tracks.length - 1) {
+          await new Promise((r) => setTimeout(r, 150))
         }
       }
 
