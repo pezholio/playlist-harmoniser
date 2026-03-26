@@ -248,11 +248,30 @@ export default function Player({ tracks, onTrackChange }) {
     }
   }
 
-  const albumArt = currentTrack?.album?.images?.[2]?.url || currentTrack?.album?.images?.[0]?.url
+  const albumArtSmall = currentTrack?.album?.images?.[2]?.url || currentTrack?.album?.images?.[0]?.url
+  const albumArtLarge = currentTrack?.album?.images?.[0]?.url || albumArtSmall
   const artists = currentTrack?.artists?.map((a) => a.name).join(', ')
 
   return (
     <div className="player">
+      {isPlaying && albumArtLarge && (
+        <div className="player-artwork-display">
+          <img
+            className="player-artwork-large"
+            src={albumArtLarge}
+            alt=""
+            key={currentTrack?.id}
+          />
+          <div className="player-artwork-overlay">
+            <div className="player-artwork-track">
+              <span className="player-artwork-title">{currentTrack?.name}</span>
+              <span className="player-artwork-artist">{artists}</span>
+            </div>
+            {crossfading && <span className="player-crossfade-badge">Crossfading</span>}
+          </div>
+        </div>
+      )}
+
       <div className="player-main">
         <div className="player-controls">
           <button className="player-btn" onClick={skipPrev} title="Previous" disabled={currentIndex <= 0}>
@@ -267,7 +286,7 @@ export default function Player({ tracks, onTrackChange }) {
         </div>
 
         <div className="player-track-info">
-          {albumArt && <img className="player-art" src={albumArt} alt="" />}
+          {!isPlaying && albumArtSmall && <img className="player-art" src={albumArtSmall} alt="" />}
           <div className="player-text">
             {currentTrack ? (
               <>
@@ -287,7 +306,6 @@ export default function Player({ tracks, onTrackChange }) {
             <span className="player-position">
               {currentIndex + 1} / {tracks.length}
             </span>
-            {crossfading && <span className="player-crossfade-badge">Crossfading</span>}
           </div>
         )}
       </div>
