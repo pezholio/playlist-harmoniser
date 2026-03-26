@@ -3,6 +3,13 @@
   publish = "dist"
   functions = "netlify/functions"
 
+# Route audio-proxy to the Netlify Function (must be before SPA fallback)
+[[redirects]]
+  from = "/api/audio-proxy"
+  to = "/.netlify/functions/audio-proxy"
+  status = 200
+  force = true
+
 # Proxy Deezer API requests (avoids CORS)
 [[redirects]]
   from = "/api/deezer/*"
