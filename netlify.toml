@@ -1,0 +1,24 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+# Proxy Deezer API requests (avoids CORS)
+[[redirects]]
+  from = "/api/deezer/*"
+  to = "https://api.deezer.com/:splat"
+  status = 200
+  force = true
+
+# Proxy Tidal GraphQL API
+[[redirects]]
+  from = "/api/tidal"
+  to = "https://gqlapi.tidal.com/"
+  status = 200
+  force = true
+
+# SPA fallback — serve index.html for all routes
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
