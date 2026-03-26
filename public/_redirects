@@ -1,0 +1,4 @@
+/api/audio-proxy  /.netlify/functions/audio-proxy  200
+/api/deezer/*  https://api.deezer.com/:splat  200!
+/api/tidal  https://gqlapi.tidal.com/  200!
+/*  /index.html  200

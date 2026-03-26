@@ -1,9 +1,8 @@
-export default async (req) => {
-  const { searchParams } = new URL(req.url)
-  const url = searchParams.get('url')
+export const handler = async (event) => {
+  const url = event.queryStringParameters && event.queryStringParameters.url
 
   if (!url) {
-    return new Response('Missing url parameter', { status: 400 })
+    return { statusCode: 400, body: 'Missing url parameter' }
   }
 
   try {
@@ -14,22 +13,25 @@ export default async (req) => {
     })
 
     if (!response.ok) {
-      return new Response(`Upstream error: ${response.status}`, {
-        status: response.status,
-      })
+      return {
+        statusCode: response.status,
+        body: 'Upstream error: ' + response.status,
+      }
     }
 
     const contentType = response.headers.get('content-type') || 'application/octet-stream'
-    const body = await response.arrayBuffer()
+    const buffer = await response.arrayBuffer()
 
-    return new Response(body, {
-      status: 200,
+    return {
+      statusCode: 200,
       headers: {
         'Content-Type': contentType,
         'Cache-Control': 'public, max-age=86400',
       },
-    })
+      body: Buffer.from(buffer).toString('base64'),
+      isBase64Encoded: true,
+    }
   } catch (e) {
-    return new Response(`Proxy error: ${e.message}`, { status: 502 })
+    return { statusCode: 502, body: 'Proxy error: ' + e.message }
   }
 }
