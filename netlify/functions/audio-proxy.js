@@ -1,5 +1,5 @@
-export async function handler(event) {
-  const url = event.queryStringParameters?.url
+const handler = async (event) => {
+  const url = event.queryStringParameters && event.queryStringParameters.url
 
   if (!url) {
     return { statusCode: 400, body: 'Missing url parameter' }
@@ -15,7 +15,7 @@ export async function handler(event) {
     if (!response.ok) {
       return {
         statusCode: response.status,
-        body: `Upstream error: ${response.status}`,
+        body: 'Upstream error: ' + response.status,
       }
     }
 
@@ -33,6 +33,8 @@ export async function handler(event) {
       isBase64Encoded: true,
     }
   } catch (e) {
-    return { statusCode: 502, body: `Proxy error: ${e.message}` }
+    return { statusCode: 502, body: 'Proxy error: ' + e.message }
   }
 }
+
+module.exports = { handler }
