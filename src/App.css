@@ -714,11 +714,34 @@ textarea {
   font-weight: 400;
 }
 
+.player-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .player-position {
   font-size: 11px;
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
-  flex-shrink: 0;
+}
+
+.player-crossfade-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--neon-cyan);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  border-radius: 20px;
+  padding: 1px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  animation: pulse-fade 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-fade {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
 }
 
 .player-loading {
