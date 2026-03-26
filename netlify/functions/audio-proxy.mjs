@@ -20,7 +20,28 @@ export const handler = async (event) => {
     }
 
     const contentType = response.headers.get('content-type') || 'application/octet-stream'
-    const buffer = await response.arrayBuffer()
+
+    // For text-based responses (HTML, JSON), return as string
+    if (contentType.includes('text') || contentType.includes('json') || contentType.includes('html')) {
+      const text = await response.text()
+      return {
+        statusCode: 200,
+        headers: {
+          'Content-Type': contentType,
+          'Cache-Control': 'public, max-age=86400',
+        },
+        body: text,
+      }
+    }
+
+    // For binary responses (audio, images), return as base64
+    const arrayBuffer = await response.arrayBuffer()
+    const bytes = new Uint8Array(arrayBuffer)
+    let binary = ''
+    for (let i = 0; i < bytes.length; i++) {
+      binary += String.fromCharCode(bytes[i])
+    }
+    const base64 = btoa(binary)
 
     return {
       statusCode: 200,
@@ -28,10 +49,14 @@ export const handler = async (event) => {
         'Content-Type': contentType,
         'Cache-Control': 'public, max-age=86400',
       },
-      body: Buffer.from(buffer).toString('base64'),
+      body: base64,
       isBase64Encoded: true,
     }
   } catch (e) {
-    return { statusCode: 502, body: 'Proxy error: ' + e.message }
+    return {
+      statusCode: 502,
+      body: JSON.stringify({ error: e.message, stack: e.stack }),
+      headers: { 'Content-Type': 'application/json' },
+    }
   }
 }
